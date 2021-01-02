@@ -1,0 +1,13 @@
+00 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=f43file/person/loginapi
+
+01 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=f43file/default/wscopipcu
+
+05 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=f43file/default/wscperson
+
+30 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=f43file/default/epi
+
+35 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=pcu/mycount/system-backup-log
+
+40 10 * * * /usr/bin/wget http://192.168.1.99/mPcu/web/index.php?r=pcu/linesend/curltch
+
+00 11 * * * sh clean.sh

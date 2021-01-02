@@ -1,0 +1,2 @@
+UPDATE `lab_items` SET `possible_value`='Trace\r\nNegative\r\n1+\r\n2+\r\n3+\r\n' WHERE (`lab_items_code`='419' and lab_items_name like'%albumin%') ;
+UPDATE `lab_items` SET `possible_value`='Trace\r\nNegative\r\n1+\r\n2+\r\n3+\r\n' WHERE (`lab_items_code`='1073' and lab_items_name like'%albumin%');

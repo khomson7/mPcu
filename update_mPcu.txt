@@ -1,0 +1,12 @@
+
+cd F:/xampp/htdocs/mPcu && git pull
+
+
+cronjob 
+
+H:\xampp\htdocs\mPcu\mPcu.bat
+H:\xampp\htdocs\mPcu\task_event\Curltch.bat
+H:\xampp\htdocs\mPcu\task_event\login.bat
+H:\xampp\htdocs\mPcu\task_event\opitemrace.bat
+H:\xampp\htdocs\mPcu\task_event\drugallergy.bat
+H:\xampp\htdocs\mPcu\task_event\oapp.bat
