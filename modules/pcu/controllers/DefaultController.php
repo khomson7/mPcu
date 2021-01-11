@@ -2,32 +2,31 @@
 
 namespace app\modules\pcu\controllers;
 
+use app\config\components\AppController;
+use app\modules\pcu\models\Opdconfig;
+use app\modules\pcu\models\ReportLog;
 use Yii;
 use yii\web\Controller;
-use app\modules\pcureport\models\HosBasedata;
-use app\modules\pcureport\models\HosBasedataSub;
-use app\config\components\AppController;
-use app\modules\pcu\models\ReportLog;
-use app\modules\pcu\models\Opdconfig;
 
 /**
  * Default controller for the `pcu` module
  */
 class DefaultController extends AppController
 {
-    
-       protected function exec_hosxp_pcu($sql = NULL) {
+
+    protected function exec_hosxp_pcu($sql = null)
+    {
         return \Yii::$app->db2->createCommand($sql)->execute();
     }
-    
-       protected function exec_master($sql = NULL) {
+
+    protected function exec_master($sql = null)
+    {
         return \Yii::$app->db->createCommand($sql)->execute();
     }
-    
-    
+
     public function actionIndex()
     {
-       $basedata_id = '8';
+        $basedata_id = '8';
 
         $sql = "select * from hos_basedata where id = '$basedata_id'";
 
@@ -41,30 +40,29 @@ class DefaultController extends AppController
         $data = new \yii\data\ArrayDataProvider([
             //'key' => 'hoscode',
             'allModels' => $rawData,
-            'pagination' => FALSE,
+            'pagination' => false,
         ]);
 
         return $this->render('index', [
-                    'data' => $data,
-                    'basedata_id' => $basedata_id,
-                    // 'id' => $id,
-                    'base_data' => $base_data,
+            'data' => $data,
+            'basedata_id' => $basedata_id,
+            // 'id' => $id,
+            'base_data' => $base_data,
         ]);
     }
-    
-    public function actionReportOpdAllergy() {
 
-
+    public function actionReportOpdAllergy()
+    {
 
         $opd = Opdconfig::find()
-                ->one();
+            ->one();
         $opdconfig = $opd->hospitalcode;
-		
-		$sql1 = "select subdistcode from chospital_amp where hoscode ='$opdconfig' ";
+
+        $sql1 = "select subdistcode from chospital_amp where hoscode ='$opdconfig' ";
         $data = Yii::$app->db->createCommand($sql1)->queryAll();
         foreach ($data as $data) {
             $subdistcode = $data['subdistcode'];
-            
+
         }
 
         $sql = "select * from kpi_index_date WHERE id = '3'";
@@ -75,7 +73,6 @@ class DefaultController extends AppController
             $file_name = $data['file_name'];
         }
 
-
         $id = '24';
 
         $sql = "select * FROM hos_basedata_sub WHERE id = '$id'";
@@ -83,7 +80,7 @@ class DefaultController extends AppController
         $rawData = \Yii::$app->db->createCommand($sql)->queryAll();
 
         foreach ($rawData as $data) {
-           
+
             $base_data = $data['basedata_sub_name'];
         }
         $code = $opdconfig . 'basedata_sub:' . $data['id'];
@@ -92,13 +89,11 @@ class DefaultController extends AppController
         $log->code_data = $code;
         $log->user_id = \Yii::$app->user->identity->id;
         $log->datetime = date('Y-m-d H:i:s');
-      
+
         $log->ip = \Yii::$app->request->getUserIP();
         $log->save();
 
         $data = Yii::$app->request->post();
-
-    
 
         $sql = "select concat(pt.pname,pt.fname,' ',pt.lname) as ptname,t.* FROM
 (SELECT o.hn,o.agent,o.note,o.report_date from opd_allergy o
@@ -110,20 +105,21 @@ ORDER BY t.report_date DESC
         $Rawdata = \Yii::$app->db2->createCommand($sql)->queryAll();
         $data = new \yii\data\ArrayDataProvider([
             'allModels' => $Rawdata,
-            'pagination' =>  [
+            'pagination' => [
                 'pageSize' => 50,
             ],
         ]);
 
         return $this->render('report-opd-allergy', [
-                    'data' => $data,
-                    'base_data' => $base_data,
-                   // 'date1' => $date1,
-                  // 'date2' => $date2,
+            'data' => $data,
+            'base_data' => $base_data,
+            // 'date1' => $date1,
+            // 'date2' => $date2,
         ]);
     }
-    
-      public function actionHosSmDr() {
+
+    public function actionHosSmDr()
+    {
 
         $sql = "CREATE TABLE IF NOT EXISTS hos_smdr (
   hos_guid varchar(38) CHARACTER SET tis620 NOT NULL,
@@ -143,13 +139,14 @@ ORDER BY t.report_date DESC
 
         return $this->redirect(['/site/sendsuccess']);
     }
-    
-    public function actionWpa() {
+
+    public function actionWpa()
+    {
 
         $opd = Opdconfig::find()->one();
         $opdconfig = $opd->hospitalcode;
-        
-  $sql1 = "
+
+        $sql1 = "
       CREATE TABLE IF NOT EXISTS `wsc_pcu_oapp` (`id` int(11) NOT NULL AUTO_INCREMENT,
   `hospcode` varchar(5) DEFAULT NULL,
   `date_app` date DEFAULT NULL,
@@ -169,16 +166,17 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
 ) ENGINE=InnoDB DEFAULT CHARSET=tis620;
 ";
         $this->exec_hosxp_pcu($sql1);
-          
-         $sql = "update chospital_amp set version = (select version from version_mPcu) WHERE hoscode = '$opdconfig'";
+
+        $sql = "update chospital_amp set version = (select version from version_mPcu) WHERE hoscode = '$opdconfig'";
         $this->exec_master($sql);
-        
+
         Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
-        
-      return $this->redirect(['/pcu/default/index']);
+
+        return $this->redirect(['/pcu/default/index']);
     }
-    
-    public function actionWpa2() {
+
+    public function actionWpa2()
+    {
 
         $sql = file_get_contents(__DIR__ . '/sql/db_update.sql');
         $command = Yii::$app->db2->createCommand($sql);
@@ -187,8 +185,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         // Make sure, we fetch all errors
         while ($command->pdoStatement->nextRowSet()) {}
     }
-    
-	 public function actionUtbl() {
+
+    public function actionUtbl()
+    {
 
         $sql = file_get_contents(__DIR__ . '/sql/wsc_check_token.sql');
         $command = Yii::$app->db2->createCommand($sql);
@@ -197,8 +196,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         // Make sure, we fetch all errors
         while ($command->pdoStatement->nextRowSet()) {}
     }
- //ปรับตาราง wsc_clinicmember
-    public function actionWscClinicmember() {
+    //ปรับตาราง wsc_clinicmember
+    public function actionWscClinicmember()
+    {
 
         $sql = file_get_contents(__DIR__ . '/sql/wsc_clinicmember.sql');
         $command = Yii::$app->db2->createCommand($sql);
@@ -207,13 +207,13 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         // Make sure, we fetch all errors
         while ($command->pdoStatement->nextRowSet()) {}
 
-        
         Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
-        
-      return $this->redirect(['/pcu/default/index']);
+
+        return $this->redirect(['/pcu/default/index']);
     }
-    
-    	 public function actionWscLabitems() {
+
+    public function actionWscLabitems()
+    {
 
         $sql = file_get_contents(__DIR__ . '/sql/update_labitems.sql');
         $command = Yii::$app->db2->createCommand($sql);
@@ -222,31 +222,32 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         // Make sure, we fetch all errors
         while ($command->pdoStatement->nextRowSet()) {}
         Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
-        
-      return $this->redirect(['/pcu/default/index']);
+
+        return $this->redirect(['/pcu/default/index']);
     }
-    
-    public function actionDrugnew() {
-             
-            $opd = Opdconfig::find()
-                ->one();
+
+    public function actionDrugnew()
+    {
+
+        $opd = Opdconfig::find()
+            ->one();
         $pcu = $opd->hospitalcode;
         $url = Yii::$app->params['webservice'];
         $url2 = Yii::$app->params['pcuservice'];
         //ตรวจสอบสถานะ API
-           try {
-              $data_api0 = file_get_contents("$url/drugs");
-        $json_api0 = json_decode($data_api0, true);
-         } catch (\Exception $e) {
-               return $this->redirect(['/site/api-err']);
-         }
-        
-          try {
-              $data_api1 = file_get_contents("$url2/drugs");
-        $json_api1 = json_decode($data_api0, true);
-         } catch (\Exception $e) {
-               return $this->redirect(['/site/api-err']);
-         }
+        try {
+            $data_api0 = file_get_contents("$url/drugs");
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+        try {
+            $data_api1 = file_get_contents("$url2/drugs");
+            $json_api1 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
 
         $user_id = Yii::$app->params['uid'];
 
@@ -261,21 +262,18 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
             $this->exec_hosxp_pcu($sql);
         }
-        
-        
-        
+
         $table2 = date('YmdHis');
-        
-        $sql = "CREATE TABLE wsc_drugitems_$table2 LIKE drugitems; 
+
+        $sql = "CREATE TABLE wsc_drugitems_$table2 LIKE drugitems;
                INSERT wsc_drugitems_$table2 SELECT * FROM drugitems;
-                CREATE TABLE wsc_s_drugitems_$table2 LIKE s_drugitems; 
+                CREATE TABLE wsc_s_drugitems_$table2 LIKE s_drugitems;
                INSERT wsc_s_drugitems_$table2 SELECT * FROM s_drugitems;";
         $this->exec_hosxp_pcu($sql);
-        
-        
-         $sql0 = "update drugitems set istatus = 'N'; 
+
+        $sql0 = "update drugitems set istatus = 'N';
                   update s_drugitems set istatus = 'N' where icode in(select icode from drugitems);";
-        $this->exec_hosxp_pcu($sql0); 
+        $this->exec_hosxp_pcu($sql0);
 
         /*
         $sql = file_get_contents(__DIR__ . '/sql/wsc_drugitems.sql');
@@ -284,9 +282,8 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
 
         // Make sure, we fetch all errors
         while ($command->pdoStatement->nextRowSet()) {}
-        */
-        
-        
+         */
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$url/drugs", //เปลี่ยนแปลง
@@ -300,7 +297,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             CURLOPT_POSTFIELDS => "",
             CURLOPT_HTTPHEADER => array(
                 "Authorization: Bearer $token_",
-                "Content-Type: application/json"
+                "Content-Type: application/json",
             ),
         ));
 
@@ -340,7 +337,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             $use_right = $item['use_right'];
             $i_type = $item['i_type'];
             $drugusage = $item['drugusage'];
-            $high_cost = $item['high_cost'];
+            /*/  $high_cost = $item['high_cost'];*/
             $must_paid = $item['must_paid'];
             $alert_level = $item['alert_level'];
             $access_level = $item['access_level'];
@@ -366,7 +363,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             $generic_name = $item['generic_name'];
             $show_pregnancy_alert = $item['show_pregnancy_alert'];
             $show_notify = $item['show_notify'];
-            $show_notify_text = '##';/*$item['p_header_sticker'];*/
+            $show_notify_text = '##'; /*$item['p_header_sticker'];*/
             $income = $item['income'];
             $print_sticker_pq = $item['print_sticker_pq'];
             $charge_service_opd = $item['charge_service_opd'];
@@ -440,7 +437,6 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                 \"use_right\":\"$use_right\",
                 \"i_type\":\"$i_type\",
                 \"drugusage\":\"$drugusage\",
-                \"high_cost\":\"$high_cost\",
                 \"must_paid\":\"$must_paid\",
                 \"alert_level\":\"$alert_level\",
                 \"access_level\":\"$access_level\",
@@ -501,7 +497,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                     }",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
-                    "Content-Type: application/json"
+                    "Content-Type: application/json",
                 ),
             ));
 
@@ -510,9 +506,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             curl_close($curl);
 
         }
-        
+
         // s_drugitems
-        
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$url/drugs/sdrug", //เปลี่ยนแปลง
@@ -525,8 +521,8 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_POSTFIELDS => "",
             CURLOPT_HTTPHEADER => array(
-               "Authorization: Bearer $token_",
-                "Content-Type: application/json"
+                "Authorization: Bearer $token_",
+                "Content-Type: application/json",
             ),
         ));
 
@@ -555,7 +551,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             $income = $item['income'];
             $is_medication = $item['is_medication'];
             $is_medsupply = $item['is_medsupply'];
-            $highcost = $item['highcost'];
+            /* $highcost = $item['highcost'];*/
             $unitprice = $item['unitprice'];
             $tpu_code_list = $item['tpu_code_list'];
             $drugaccount = $item['drugaccount'];
@@ -593,7 +589,6 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                 \"income\":\"$income\",
                 \"is_medication\":\"$is_medication\",
                 \"is_medsupply\":\"$is_medsupply\",
-                \"highcost\":\"$highcost\",
                 \"unitprice\":\"$unitprice\",
                 \"tpu_code_list\":\"$tpu_code_list\",
                 \"drugaccount\":\"$drugaccount\",
@@ -603,28 +598,27 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                     }",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
-                    "Content-Type: application/json"
+                    "Content-Type: application/json",
                 ),
             ));
 
             $response = curl_exec($curl);
 
             curl_close($curl);
-            
 
         }
-         
-         Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
-        
-      return $this->redirect(['/pcu/default/index']);
-        
+
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
+
     }
-    
-    
-    public function actionDrugitemsrep() {
+
+    public function actionDrugitemsrep()
+    {
 
         $icode = '';
-        
+
         $curl = curl_init();
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$url/drugs/$icode", //เปลี่ยนแปลง
@@ -637,8 +631,8 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_POSTFIELDS => "",
             CURLOPT_HTTPHEADER => array(
-               // "Authorization: Bearer $token_",
-                "Content-Type: application/json"
+                // "Authorization: Bearer $token_",
+                "Content-Type: application/json",
             ),
         ));
 
@@ -682,7 +676,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                     }",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
-                    "Content-Type: application/json"
+                    "Content-Type: application/json",
                 ),
             ));
 
@@ -691,30 +685,31 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             curl_close($curl);
 
         }
-        
+
     }
-    
-    public function actionOpdallergy() {
-        
-            $opd = Opdconfig::find()
-                ->one();
+
+    public function actionOpdallergy()
+    {
+
+        $opd = Opdconfig::find()
+            ->one();
         $pcu = $opd->hospitalcode;
         $url = Yii::$app->params['webservice'];
         $url2 = Yii::$app->params['pcuservice'];
         //ตรวจสอบสถานะ API
-           try {
-              $data_api0 = file_get_contents($url);
-        $json_api0 = json_decode($data_api0, true);
-         } catch (\Exception $e) {
-               return $this->redirect(['/site/api-err']);
-         }
-        
-          try {
-              $data_api1 = file_get_contents($url2);
-        $json_api1 = json_decode($data_api0, true);
-         } catch (\Exception $e) {
-               return $this->redirect(['/site/api-err']);
-         }
+        try {
+            $data_api0 = file_get_contents($url);
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+        try {
+            $data_api1 = file_get_contents($url2);
+            $json_api1 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
 
         $user_id = Yii::$app->params['uid'];
 
@@ -729,10 +724,8 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
             $this->exec_hosxp_pcu($sql);
         }
-        
-        
- 
-       $curl = curl_init();
+
+        $curl = curl_init();
 
         curl_setopt_array($curl, array(
             CURLOPT_URL => "$url/persons/allergycheck", //เปลี่ยนแปลง
@@ -746,7 +739,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             CURLOPT_POSTFIELDS => "",
             CURLOPT_HTTPHEADER => array(
                 "Authorization: Bearer $token_",
-                "Content-Type: application/json"
+                "Content-Type: application/json",
             ),
         ));
 
@@ -755,17 +748,13 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         curl_close($curl);
         $data = json_decode($response, true);
 
-
 //   $datacount = sizeof($data['data']);
-//  echo $response;
-
+        //  echo $response;
 
         foreach ($data['data'] as $key => $item) {
 
-
             $cid_encrypt2 = $item['cid_encrypt'];
             $check_edit2 = $item['check_edit'];
-
 
             $curl = curl_init();
 
@@ -781,11 +770,11 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                 CURLOPT_POSTFIELDS => "{
                 \"cid_encrypt\":\"$cid_encrypt2\",
                 \"check_edit\":\"$check_edit2\"
-                
+
                     }",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
-                    "Content-Type: application/json"
+                    "Content-Type: application/json",
                 ),
             ));
 
@@ -794,17 +783,15 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             curl_close($curl);
         }
 
-
         $sql = "select cid from patient WHERE  MD5(concat('wsc',cid)) in (select cid_encrypt from wsc_cid_encrypt)";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
         foreach ($data as $data) {
             $cid = $data['cid'];
 
-
 //  $last_check = date('Y-m-d H:i:s');
-//  $sql = "REPLACE INTO wsc_check_patient(cid,last_check)
-//       VALUE('$cid','$last_check')";
-//   $this->exec_hosxp_pcu($sql);
+            //  $sql = "REPLACE INTO wsc_check_patient(cid,last_check)
+            //       VALUE('$cid','$last_check')";
+            //   $this->exec_hosxp_pcu($sql);
 
             $curl = curl_init();
 
@@ -820,7 +807,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                 CURLOPT_POSTFIELDS => "",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
-                    "Content-Type: application/json"
+                    "Content-Type: application/json",
                 ),
             ));
 
@@ -829,12 +816,10 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             curl_close($curl);
             $data = json_decode($response, true);
 
-
 //   $datacount = sizeof($data['data']);
-// echo $datacount;
+            // echo $datacount;
 
             foreach ($data['data'] as $key => $item) {
-
 
                 $hn = $item['hn'];
                 $report_date = $item['report_date'];
@@ -883,7 +868,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                     }",
                     CURLOPT_HTTPHEADER => array(
                         "Authorization: Bearer $token_",
-                        "Content-Type: application/json"
+                        "Content-Type: application/json",
                     ),
                 ));
 
@@ -893,16 +878,13 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             }
         }
 
-
         $sql = "call mpcu_opd_allergy_importpcu";
         $this->exec_hosxp_pcu($sql);
-  
-         Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
-        
-      return $this->redirect(['/pcu/default/index']);
-        
+
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
+
     }
-    
 
 }
-

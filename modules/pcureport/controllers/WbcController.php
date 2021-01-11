@@ -456,6 +456,13 @@ WHERE icd10 = 'Z258'
                     ],
                 ]);
 
+            } catch (\Exception $e) {
+
+                //echo "ท่านไม่ได้รับสิทธ";
+                return $this->redirect(['/site/api-err']);
+            }
+            try {
+
                 $curl = curl_init();
                 curl_setopt_array($curl, array(
                     CURLOPT_URL => "$url/epis/wbcvaccine", //เปลี่ยนแปลง

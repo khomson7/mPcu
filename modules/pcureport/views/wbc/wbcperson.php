@@ -35,6 +35,7 @@ echo GridView::widget([
             'attribute' => 'person_id',
             'label' => "PID",
         ],
+
         [
             'attribute' => 'ptname',
             'label' => "ชื่อ - สกุล",
