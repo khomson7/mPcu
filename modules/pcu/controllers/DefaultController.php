@@ -186,6 +186,8 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         while ($command->pdoStatement->nextRowSet()) {}
     }
 
+
+
     public function actionUtbl()
     {
 
@@ -226,6 +228,29 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         return $this->redirect(['/pcu/default/index']);
     }
 
+    public function actionDrugusage()
+    {
+
+        $table2 = date('YmdHis');
+
+        $sql = "CREATE TABLE wsc_drugusage_$table2 LIKE drugusage;
+               INSERT wsc_drugusage_$table2 SELECT * FROM drugusage;
+                ";
+        $this->exec_hosxp_pcu($sql);
+
+
+        $sql = file_get_contents(__DIR__ . '/sql/drugusage.sql');
+        $command = Yii::$app->db2->createCommand($sql);
+        $command->execute();
+
+        // Make sure, we fetch all errors
+        while ($command->pdoStatement->nextRowSet()) {}
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
+    }
+
+
     public function actionDrugnew()
     {
 
@@ -241,14 +266,14 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         } catch (\Exception $e) {
             return $this->redirect(['/site/api-err']);
         }
-
+/*
         try {
             $data_api1 = file_get_contents("$url2/drugs");
             $json_api1 = json_decode($data_api0, true);
         } catch (\Exception $e) {
             return $this->redirect(['/site/api-err']);
         }
-
+*/
         $user_id = Yii::$app->params['uid'];
 
         $sql = "select token_ from wsc_check_token where id = '$user_id'";

@@ -672,7 +672,9 @@ WHERE `name` = 'pp_special_id'";
             VALUE('$mkey')";
             $this->exec_hosxp_pcu($sql);
         }
-        
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
         
     }
 
