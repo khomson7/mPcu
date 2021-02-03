@@ -26,6 +26,16 @@ class DefaultController extends AppController
 
     public function actionIndex()
     {
+                $ver = file_get_contents(Yii::getAlias('../version/version.txt'));
+      //  $ver = explode(',', $ver);
+       // echo $ver;
+
+        $sql = "
+               update chospital_amp set version = '$ver' where hoscode = '03149'
+                ";
+        $this->exec_master($sql);
+
+
         $basedata_id = '8';
 
         $sql = "select * from hos_basedata where id = '$basedata_id'";
@@ -214,6 +224,19 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         return $this->redirect(['/pcu/default/index']);
     }
 
+     public function actionNewver()
+    {
+
+        $ver = file_get_contents(Yii::getAlias('../version/version.txt'));
+      //  $ver = explode(',', $ver);
+        echo $ver;
+
+        $sql = "
+               update chospital_amp set version = '$ver' where hoscode = '03149'
+                ";
+        $this->exec_master($sql);
+    }
+
     public function actionWscLabitems()
     {
 
@@ -274,7 +297,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             return $this->redirect(['/site/api-err']);
         }
 */
-        $user_id = Yii::$app->params['uid'];
+      //  $user_id = Yii::$app->params['uid'];
+
+        $user_id = \Yii::$app->user->identity->id;
 
         $sql = "select token_ from wsc_check_token where id = '$user_id'";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
@@ -736,7 +761,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             return $this->redirect(['/site/api-err']);
         }
 
-        $user_id = Yii::$app->params['uid'];
+       // $user_id = Yii::$app->params['uid'];
+
+            $user_id = \Yii::$app->user->identity->id;
 
         $sql = "select token_ from wsc_check_token where id = '$user_id'";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
@@ -911,5 +938,210 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         return $this->redirect(['/pcu/default/index']);
 
     }
+
+    public function actionSmdrtohos()
+    {
+
+        $opd = Opdconfig::find()
+            ->one();
+        $pcu = $opd->hospitalcode;
+        $url = Yii::$app->params['webservice'];
+        $url2 = Yii::$app->params['pcuservice'];
+        //ตรวจสอบสถานะ API
+        try {
+            $data_api0 = file_get_contents("$url");
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+      //  $user_id = Yii::$app->params['uid'];
+        $user_id = \Yii::$app->user->identity->id;
+
+        $sql = "select token_ from wsc_check_token where id = '$user_id'";
+        $data = Yii::$app->db2->createCommand($sql)->queryAll();
+        if (!$user_id) {
+            throw new \Exception;
+        }
+        foreach ($data as $data) {
+            $token_ = $data['token_'];
+            $date_update = date('Y-m-d H:i:s');
+            $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
+            $this->exec_hosxp_pcu($sql);
+        }
+
+        echo $token_ ;
+
+       
+
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "$url/hostowscs/smdrtopcu/$pcu", //เปลี่ยนแปลง
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_POSTFIELDS => "",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer $token_",
+                "Content-Type: application/json",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        $data = json_decode($response, true);
+
+       // echo $userHost = Yii::$app->request->userHost;
+
+       //echo $response;
+
+        foreach ($data['data'] as $key => $item) {
+
+            $cid = $item['cid'];
+            $pp_special_code = $item['pp_special_code'];
+            $vstdate2 = $item['vstdate2'];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "$url2/fromwscs/ppstohos",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => "{
+                \"cid\":\"$cid\",
+                \"pp_special_code\":\"$pp_special_code\",
+                \"vstdate2\":\"$vstdate2\"
+                    }",
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: Bearer $token_",
+                    "Content-Type: application/json",
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+        }
+
+       
+
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
+
+    }
+
+    public function actionSmdrtohosall()
+    {
+
+        $opd = Opdconfig::find()
+            ->one();
+        $pcu = $opd->hospitalcode;
+        $url = Yii::$app->params['webservice'];
+        $url2 = Yii::$app->params['pcuservice'];
+        //ตรวจสอบสถานะ API
+        try {
+            $data_api0 = file_get_contents("$url");
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+      //  $user_id = Yii::$app->params['uid'];
+
+        $user_id = \Yii::$app->user->identity->id;
+
+        $sql = "select token_ from wsc_check_token where id = '$user_id'";
+        $data = Yii::$app->db2->createCommand($sql)->queryAll();
+        if (!$user_id) {
+            throw new \Exception;
+        }
+        foreach ($data as $data) {
+            $token_ = $data['token_'];
+            $date_update = date('Y-m-d H:i:s');
+            $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
+            $this->exec_hosxp_pcu($sql);
+        }
+
+        $table2 = date('YmdHis');
+
+
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "$url/hostowscs/smdrtopcuall/$pcu", //เปลี่ยนแปลง
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_POSTFIELDS => "",
+            CURLOPT_HTTPHEADER => array(
+                "Authorization: Bearer $token_",
+                "Content-Type: application/json",
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+        $data = json_decode($response, true);
+      
+       //echo $response;
+
+        foreach ($data['data'] as $key => $item) {
+
+            $cid = $item['cid'];
+            $pp_special_code = $item['pp_special_code'];
+            $vstdate2 = $item['vstdate2'];
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+                CURLOPT_URL => "$url2/fromwscs/ppstohos",
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_ENCODING => "",
+                CURLOPT_MAXREDIRS => 10,
+                CURLOPT_TIMEOUT => 0,
+                CURLOPT_FOLLOWLOCATION => true,
+                CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                CURLOPT_CUSTOMREQUEST => "POST",
+                CURLOPT_POSTFIELDS => "{
+                \"cid\":\"$cid\",
+                \"pp_special_code\":\"$pp_special_code\",
+                \"vstdate2\":\"$vstdate2\"
+                    }",
+                CURLOPT_HTTPHEADER => array(
+                    "Authorization: Bearer $token_",
+                    "Content-Type: application/json",
+                ),
+            ));
+
+            $response = curl_exec($curl);
+
+            curl_close($curl);
+
+        }
+
+        /*
+
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);*/
+
+    }
+
+
 
 }

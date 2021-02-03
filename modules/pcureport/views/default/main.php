@@ -45,13 +45,13 @@ yii\bootstrap\Modal::end();
                    
                     <div class="panel panel-default">
                     <div class="panel-heading"><h4>1.1 (ประมวลผล) </h4>
-                        <?= Html::button('<i class="glyphicon glyphicon-repeat"></i> รายการสั่ง Lab เรื้อรัง ', ['value' => Url::to(['default/wsc-chronic-lab']), 'title' => 'ปรับข้อมูลยา', 'class' => 'showModalButton btn btn-success']); ?>
+                        <?= Html::button('<i class="glyphicon glyphicon-repeat"></i> รายการสั่ง Lab เรื้อรัง ', ['value' => Url::to(['default/wsc-chronic-lab']), 'title' => 'ปรับรายการ', 'class' => 'showModalButton btn btn-success']); ?>
+                         <?= Html::button('<i class="glyphicon glyphicon-repeat"></i> ปรับตารางและนำเข้าข้อมูล ', ['value' => Url::to(['default/modify']), 'title' => 'ปรับรายการ', 'class' => 'showModalButton btn btn-danger']); ?>
                     
                     </div>
                     </div>
                    
                
-                </div>
 
                 
 

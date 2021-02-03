@@ -37,36 +37,42 @@ class DefaultController extends AppController {
 
     public function actionModify() {
 
-        $session = Yii::$app->session;
-        $token = $session->get('mytoken');
-        $session->open();
+
+        $url = Yii::$app->params['webservice'];
+        $url2 = Yii::$app->params['pcuservice'];
+        //ตรวจสอบสถานะ API
+        try {
+            $data_api0 = file_get_contents("$url");
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+        $user_id = \Yii::$app->user->identity->id;
+
+        $sql = "select token_ from wsc_check_token where id = '$user_id'";
+        $data = Yii::$app->db2->createCommand($sql)->queryAll();
+        if (!$user_id) {
+            throw new \Exception;
+        }
+        foreach ($data as $data) {
+            $token_ = $data['token_'];
+            $date_update = date('Y-m-d H:i:s');
+            $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
+            $this->exec_hosxp_pcu($sql);
+        }
 
         $opd = Opdconfig::find()
                 ->one();
         $opdconfig = $opd->hospitalcode;
 
 
-        $url = Yii::$app->params['webservice'];
-        /*
-          $sql = "ALTER TABLE person ADD COLUMN IF NOT EXISTS `apicheck` varchar(35) CHARACTER SET utf8 DEFAULT ''";
-          $this->exec_hosxp_pcu($sql);
-         */
-        $sql1 = "CREATE TABLE IF NOT EXISTS hos_smdr (
-  hos_guid varchar(38) CHARACTER SET tis620 NOT NULL,
-  hn varchar(9) CHARACTER SET tis620 DEFAULT NULL,
-  cid varchar(13) CHARACTER SET tis620 DEFAULT NULL,
-  chwpart char(2) CHARACTER SET tis620 DEFAULT NULL,
-  amppart char(2) CHARACTER SET tis620 DEFAULT NULL,
-  tmbpart char(2) CHARACTER SET tis620 DEFAULT NULL,
-  moopart char(3) CHARACTER SET tis620 DEFAULT NULL,
-  vstdate date DEFAULT NULL,
-  vsttime time DEFAULT NULL,
-  drinking_type_id int(11) DEFAULT NULL,
-  smoking_type_id int(11) DEFAULT NULL,
-  PRIMARY KEY (hos_guid)
-) ENGINE=InnoDB DEFAULT CHARSET=tis620";
-        $this->exec_hosxp_pcu($sql1);
+       $sql = file_get_contents(__DIR__ . '/sql/hos_smdr.sql');
+        $command = Yii::$app->db2->createCommand($sql);
+        $command->execute();
 
+        // Make sure, we fetch all errors
+        while ($command->pdoStatement->nextRowSet()) {}
 
 
         $curl = curl_init();
@@ -82,7 +88,7 @@ class DefaultController extends AppController {
             CURLOPT_CUSTOMREQUEST => "GET",
             CURLOPT_POSTFIELDS => "",
             CURLOPT_HTTPHEADER => array(
-                "Authorization: Bearer $token",
+              //  "Authorization: Bearer $token",
                 "Content-Type: application/json"
             ),
         ));
@@ -98,8 +104,8 @@ class DefaultController extends AppController {
 
         foreach ($data['results'] as $key => $data) {
 
-            $hos_guid = $data['hos_guid'];
-            $hn = $data['hn'];
+          //  $hos_guid = $data['hos_guid'];
+            $vn = $data['vn'];
             $cid = $data['cid'];
             $chwpart = $data['chwpart'];
             $amppart = $data['amppart'];
@@ -111,8 +117,8 @@ class DefaultController extends AppController {
             $smoking_type_id = $data['smoking_type_id'];
 
 
-            $sql = "REPLACE INTO hos_smdr(hos_guid,hn,cid,chwpart,amppart,tmbpart,moopart,vstdate,vsttime,drinking_type_id,smoking_type_id)
-            VALUE('$hos_guid','$hn','$cid','$chwpart','$amppart','$tmbpart','$moopart','$vstdate','$vsttime','$drinking_type_id','$smoking_type_id')";
+            $sql = "REPLACE INTO hos_smdr(vn,cid,chwpart,amppart,tmbpart,moopart,vstdate,vsttime,drinking_type_id,smoking_type_id)
+            VALUE('$vn','$cid','$chwpart','$amppart','$tmbpart','$moopart','$vstdate','$vsttime','$drinking_type_id','$smoking_type_id')";
             $this->exec_hosxp_pcu($sql);
         }
 
@@ -122,103 +128,59 @@ class DefaultController extends AppController {
         //  return $this->redirect(['/site/process-success']);
     }
 
-    public function actionSmDrPps() {
+    public function actionSmDrPps($date1 = null, $date2 = null) {
+
+             if ($date1 == null) {
+
+            $date0 = date('Y-m-d');
+            $date1 = $date0;
+            $date2 = $date0;
+        }
+
         $sql = "
 select (@cnt := @cnt + 1) AS pp_special_id,tall.vn,t.pp_special_type_id,tall.doctor,'1' as pp_special_service_place_type_id
 ,date_format(DATE_ADD(concat(tall.vstdate,' ',tall.vsttime), INTERVAL 5 MINUTE),'%Y-%m-%d %H:%i:%s') as entry_datetime
-,(select hospitalcode from opdconfig) as dest_hospcode,tall.hn 
+,(select hospitalcode from opdconfig) as dest_hospcode,tall.hn
  FROM
-(select * FROM
-(select ov.vstdate,ov.vsttime,t.*,(select doctorcode from opduser where loginname = ov.staff) as doctor 
-,CASE 
+(select o.vstdate,o.vsttime,o.vn,o.hn,t.smoking,(select doctorcode from opduser where loginname = o.staff) as doctor
+FROM ovst o
+INNER JOIN patient pt on pt.hn = o.hn
+INNER JOIN
+(select h.*,
+CASE 
                         WHEN smoking_type_id in('1','17') THEN '1B52'
                         WHEN smoking_type_id in('10') THEN '1B501'
                         WHEN smoking_type_id in('11') THEN '1B502'
                         WHEN smoking_type_id in('12','13') THEN '1B503'
                         WHEN smoking_type_id in('14') THEN '1B542'
                         WHEN smoking_type_id in('15','16') THEN '1B562'
-                        end as smoking
-FROM ovst ov
+                        end as smoking 
+FROM hos_smdr h
 INNER JOIN
-(select t.*,max(o.vn) as vn FROM opdscreen o
-INNER JOIN
-(select t.hn,s.smoking_type_id
-FROM hos_smdr s
-INNER JOIN
-(select max(s.vstdate) as vstdate,pt.cid,pt.hn FROM  hos_smdr s
-INNER JOIN patient pt  on pt.cid = s.cid
-GROUP BY s.cid)t on t.cid = s.cid and t.vstdate = s.vstdate ORDER BY t.hn)t on t.hn = o.hn
-WHERE o.vstdate BETWEEN '2019-10-01' AND '2020-09-30'
-GROUP BY o.hn)t on t.vn = ov.vn
+(select max(vn) as vn 
+from hos_smdr GROUP BY cid)t on t.vn = h.vn)t on convert(t.cid using utf8) COLLATE utf8_general_ci =  convert(upper(md5(concat('r9',pt.cid,'refer#09'))) using utf8) COLLATE utf8_general_ci
+
+WHERE o.vstdate BETWEEN '$date1' AND '$date2' AND t.smoking is not null
 
 UNION
 
-select ov.vstdate,ov.vsttime,t.*,(select doctorcode from opduser where loginname = ov.staff) as doctor 
-,CASE 
-                        WHEN smoking_type_id in('10') THEN '1B530'
-                        WHEN smoking_type_id in('11') THEN '1B531'
-                        WHEN smoking_type_id in('12','13') THEN '1B531'
-                        WHEN smoking_type_id in('14') THEN '1B531'
-                        WHEN smoking_type_id in('15','16') THEN '1B531'
-                        end as smoking
-FROM ovst ov
+select o.vstdate,o.vsttime,o.vn,o.hn,t.drinking,(select doctorcode from opduser where loginname = o.staff) as doctor
+FROM ovst o
+INNER JOIN patient pt on pt.hn = o.hn
 INNER JOIN
-(select t.*,max(o.vn) as vn FROM opdscreen o
-INNER JOIN
-(select t.hn,s.smoking_type_id
-FROM hos_smdr s
-INNER JOIN
-(select max(s.vstdate) as vstdate,pt.cid,pt.hn FROM  hos_smdr s
-INNER JOIN patient pt  on pt.cid = s.cid
-GROUP BY s.cid)t on t.cid = s.cid and t.vstdate = s.vstdate ORDER BY t.hn)t on t.hn = o.hn
-WHERE o.vstdate BETWEEN '2019-10-01' AND '2020-09-30'
-GROUP BY o.hn)t on t.vn = ov.vn)t1
-
-UNION
-
-select * FROM
-(select ov.vstdate,ov.vsttime,t.*,(select doctorcode from opduser where loginname = ov.staff) as doctor 
-,CASE 
+(select h.*,CASE 
                         WHEN drinking_type_id in('1','14') THEN '1B600'
                         WHEN drinking_type_id in('11','12','13') THEN '1B601'
                         WHEN drinking_type_id in('7') THEN '1B602'
                         WHEN drinking_type_id in('8') THEN '1B603'
                         WHEN drinking_type_id in('9','10') THEN '1B604'
                         end as drinking
-FROM ovst ov
+FROM hos_smdr h
 INNER JOIN
-(select t.*,max(o.vn) as vn FROM opdscreen o
-INNER JOIN
-(select t.hn,s.drinking_type_id
-FROM hos_smdr s
-INNER JOIN
-(select max(s.vstdate) as vstdate,pt.cid,pt.hn FROM  hos_smdr s
-INNER JOIN patient pt  on pt.cid = s.cid
-GROUP BY s.cid)t on t.cid = s.cid and t.vstdate = s.vstdate ORDER BY t.hn)t on t.hn = o.hn
-WHERE o.vstdate BETWEEN '2019-10-01' AND '2020-09-30'
-GROUP BY o.hn)t on t.vn = ov.vn
+(select max(vn) as vn 
+from hos_smdr GROUP BY cid)t on t.vn = h.vn)t on convert(t.cid using utf8) COLLATE utf8_general_ci =  convert(upper(md5(concat('r9',pt.cid,'refer#09'))) using utf8) COLLATE utf8_general_ci
 
-UNION
-
-select ov.vstdate,ov.vsttime,t.*,(select doctorcode from opduser where loginname = ov.staff) as doctor 
-,CASE 
-                        
-                        WHEN drinking_type_id in('7') THEN '1B610'
-                        WHEN drinking_type_id in('8') THEN '1B611'
-                        WHEN drinking_type_id in('9','10') THEN '1B611'
-                        end as drinking
-FROM ovst ov
-INNER JOIN
-(select t.*,max(o.vn) as vn FROM opdscreen o
-INNER JOIN
-(select t.hn,s.drinking_type_id
-FROM hos_smdr s
-INNER JOIN
-(select max(s.vstdate) as vstdate,pt.cid,pt.hn FROM  hos_smdr s
-INNER JOIN patient pt  on pt.cid = s.cid
-GROUP BY s.cid)t on t.cid = s.cid and t.vstdate = s.vstdate ORDER BY t.hn)t on t.hn = o.hn
-WHERE o.vstdate BETWEEN '2019-10-01' AND '2020-09-30'
-GROUP BY o.hn)t on t.vn = ov.vn)t2) tall
+WHERE o.vstdate BETWEEN '$date1' AND '$date2' AND t.drinking is not null)tall
 LEFT JOIN pp_special_type t on convert(t.pp_special_code using utf8) COLLATE utf8_general_ci = tall.smoking
 CROSS JOIN (SELECT @cnt := (select MAX(pp_special_id) FROM pp_special)) AS dummy
 where tall.hn not in(select ps.hn from pp_special ps
@@ -243,7 +205,8 @@ ORDER BY tall.vn asc
             $hn = $data['hn'];
 
             $sql = "INSERT INTO pp_special(pp_special_id,vn,pp_special_type_id,doctor,pp_special_service_place_type_id,entry_datetime,dest_hospcode,hn)
-            VALUE('$pp_special_id','$vn','$pp_special_type_id','$doctor','$pp_special_service_place_type_id','$entry_datetime','$dest_hospcode','$hn')";
+            VALUE('$pp_special_id','$vn','$pp_special_type_id','$doctor','$pp_special_service_place_type_id',
+            '$entry_datetime','$dest_hospcode','$hn')";
             $this->exec_hosxp_pcu($sql);
         }
 
@@ -252,7 +215,11 @@ SET serial_no = (select MAX(pp_special_id) FROM pp_special)
 WHERE `name` = 'pp_special_id'";
         $this->exec_hosxp_pcu($sql2);
         Yii::$app->getSession()->setFlash('success', 'ปรับข้อมูลเรียบร้อย!! ');
-        return $this->render('index');
+
+        return $this->render('sm-dr-pps', [
+            'date1' => $date1,
+            'date2' => $date2,
+        ]);
     }
 
     public function actionEpi() {

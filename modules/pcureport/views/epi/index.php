@@ -6,6 +6,27 @@ $this->title = $base_data;
 //$this->params['breadcrumbs'][] = $base_data;
 
 ?>
+
+<?php
+yii\bootstrap\Modal::begin([
+    'headerOptions' => ['id' => 'modalHeader'],
+    'id' => 'modal',
+    'size' => 'modal-lg',
+    'closeButton' => [
+        'id' => 'close-button',
+        'class' => 'close',
+        'data-dismiss' => 'modal',
+    ],
+    //keeps from closing modal with esc key or by clicking out of the modal.
+    // user must click cancel or X to close
+    'clientOptions' => [
+        'backdrop' => false, 'keyboard' => true,
+    ],
+]);
+echo "<div id='modalContent'> <h3> กำลังประมวลผลข้อมูลกรุณารอสักครู่ </h3> <div style='text-align:center'>" . Html::img('@web/images/ajax-loader.gif') . "</div></div>";
+yii\bootstrap\Modal::end();
+?>
+
 <?php
 $count = Yii::$app->db->createCommand("SELECT count(id) as cc,sum(count_report) as r_count FROM hos_basedata_sub where active = 'True' and basedata_id = '$basedata_id' ")->queryAll();
 foreach ($count as $d) {
@@ -33,7 +54,7 @@ foreach ($count as $d) {
 
 
                 <p>
-                <li class="glyphicon glyphicon-record"> <a href="index.php?r=pcureport<?= $ds['link'] ?>" ><?= $i ?> <?= $ds['basedata_sub_name'] ?>
+                <li class="showModalButton btn btn-link"> <a href="index.php?r=pcureport<?= $ds['link'] ?>" ><?= $i ?> <?= $ds['basedata_sub_name'] ?>
                     </a></li>
                 </p>
 

@@ -33,6 +33,100 @@ class DefaultController extends Controller
         return $this->render('main');
     }
 
+     public function actionModify() {
+
+
+        $url = Yii::$app->params['webservice'];
+        $url2 = Yii::$app->params['pcuservice'];
+        //ตรวจสอบสถานะ API
+        try {
+            $data_api0 = file_get_contents("$url");
+            $json_api0 = json_decode($data_api0, true);
+        } catch (\Exception $e) {
+            return $this->redirect(['/site/api-err']);
+        }
+
+        $user_id = \Yii::$app->user->identity->id;
+
+        $sql = "select token_ from wsc_check_token where id = '$user_id'";
+        $data = Yii::$app->db2->createCommand($sql)->queryAll();
+        if (!$user_id) {
+            throw new \Exception;
+        }
+        foreach ($data as $data) {
+            $token_ = $data['token_'];
+            $date_update = date('Y-m-d H:i:s');
+            $sql = "UPDATE wsc_check_token  SET date_update = '$date_update' where id = '$user_id'";
+            $this->exec_hosxp_pcu($sql);
+        }
+
+        $opd = Opdconfig::find()
+                ->one();
+        $opdconfig = $opd->hospitalcode;
+
+
+       $sql = file_get_contents(__DIR__ . '/sql/hos_smdr.sql');
+        $command = Yii::$app->db2->createCommand($sql);
+        $command->execute();
+
+        // Make sure, we fetch all errors
+        while ($command->pdoStatement->nextRowSet()) {}
+
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+            CURLOPT_URL => "$url/opdscreens/smdr/$opdconfig", //เปลี่ยนแปลง
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 0,
+            CURLOPT_FOLLOWLOCATION => true,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "GET",
+            CURLOPT_POSTFIELDS => "",
+            CURLOPT_HTTPHEADER => array(
+              //  "Authorization: Bearer $token",
+                "Content-Type: application/json"
+            ),
+        ));
+
+        $response = curl_exec($curl);
+
+        curl_close($curl);
+
+
+        $data = json_decode($response, true);
+        // $datacount = sizeof($data['data']);
+        // echo $datacount;
+
+        foreach ($data['results'] as $key => $data) {
+
+          //  $hos_guid = $data['hos_guid'];
+            $vn = $data['vn'];
+            $cid = $data['cid'];
+            $chwpart = $data['chwpart'];
+            $amppart = $data['amppart'];
+            $tmbpart = $data['tmbpart'];
+            $moopart = $data['moopart'];
+            $vstdate = $data['vstdate'];
+            $vsttime = $data['vsttime'];
+            $drinking_type_id = $data['drinking_type_id'];
+            $smoking_type_id = $data['smoking_type_id'];
+
+
+            $sql = "REPLACE INTO hos_smdr(vn,cid,chwpart,amppart,tmbpart,moopart,vstdate,vsttime,drinking_type_id,smoking_type_id)
+            VALUE('$vn','$cid','$chwpart','$amppart','$tmbpart','$moopart','$vstdate','$vsttime','$drinking_type_id','$smoking_type_id')";
+            $this->exec_hosxp_pcu($sql);
+        }
+
+       Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+        
+      return $this->redirect(['/pcureport/default/main']);
+//Yii::$app->getSession()->setFlash('success', 'ประมวลผลเรียบร้อยแล้ว!! ');
+        //  return $this->redirect(['/site/process-success']);
+    }
+
     public function actionWscChronicLab() {
 
         $sql = file_get_contents(__DIR__ . '/sql/wsc_chronic_lab.sql');
