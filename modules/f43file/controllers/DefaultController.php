@@ -191,6 +191,7 @@ where tall.hn not in(select ps.hn from pp_special ps
                         AND hn is not NULL  
                         GROUP BY hn)
 AND tall.smoking is not NULL
+and tall.hn is not null and tall.doctor not in('')
 ORDER BY tall.vn asc
 ";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
