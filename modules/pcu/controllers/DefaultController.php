@@ -780,7 +780,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-            CURLOPT_URL => "$url/persons/allergycheck", //เปลี่ยนแปลง
+            CURLOPT_URL => "$url/persons/allergycheckupdate", //เปลี่ยนแปลง
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING => "",
             CURLOPT_MAXREDIRS => 10,
@@ -806,7 +806,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
         foreach ($data['data'] as $key => $item) {
 
             $cid_encrypt2 = $item['cid_encrypt'];
-            $check_edit2 = $item['check_edit'];
+          //  $check_edit2 = $item['check_edit'];
 
             $curl = curl_init();
 
@@ -820,9 +820,7 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
                 CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => "{
-                \"cid_encrypt\":\"$cid_encrypt2\",
-                \"check_edit\":\"$check_edit2\"
-
+                \"cid_encrypt\":\"$cid_encrypt2\"
                     }",
                 CURLOPT_HTTPHEADER => array(
                     "Authorization: Bearer $token_",
@@ -835,7 +833,9 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
             curl_close($curl);
         }
 
-        $sql = "select cid from patient WHERE  MD5(concat('wsc',cid)) in (select cid_encrypt from wsc_cid_encrypt)";
+        $sql = "select upper(md5(concat('r9',cid,'refer#09'))) as cid 
+        from patient WHERE  upper(md5(concat('r9',cid,'refer#09'))) 
+        in (select cid_encrypt from wsc_cid_encrypt)";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
         foreach ($data as $data) {
             $cid = $data['cid'];

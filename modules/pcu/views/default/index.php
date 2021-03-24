@@ -45,20 +45,22 @@ yii\bootstrap\Modal::end();
                     <div class="panel panel-default">
                     <div class="panel-heading"><h4>1.1 (ทำทุก 1 สัปดาห์) </h4>
                         <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> นำเข้าข้อมูลแพ้ยา', ['value' => Url::to(['default/opdallergy']), 'title' => 'นำเข้าข้อมูลแพ้ยา', 'class' => 'showModalButton btn btn-success']);?>
-                    <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> ปรับรายการยา', ['value' => Url::to(['default/drugnew']), 'title' => 'ปรับรายการยา', 'class' => 'showModalButton btn btn-danger']);?>
-                      <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> ปรับรายการ Lab', ['value' => Url::to(['default/wsc-labitems']), 'title' => 'ปรับข้อมูล Lab', 'class' => 'showModalButton btn btn-info']);?>
+                   
                     </div>
                     </div>
                     <div class="panel panel-default">
                     <div class="panel-heading"><h4>1.2 (ทำทุก 1 เดือน) </h4>
                         <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> ส่งข้อมูลยา', ['value' => Url::to(['/f43file/default/wscopipcu']), 'title' => 'ส่งข้อมูลยา', 'class' => 'showModalButton btn btn-danger']);?>
-                        <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> wsc_cinicmember', ['value' => Url::to(['default/wsc-clinicmember']), 'title' => 'ปรับ wsc_cinicmember', 'class' => 'showModalButton btn btn-success']);?>
+                        
                     </div>
                     </div>
 
                     <div class="panel panel-default">
                     <div class="panel-heading"><h4>1.3 (เมนูเฉพาะกิจ) </h4>
                         <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> นำเข้าวิธีใช้ยา', ['value' => Url::to(['default/drugusage']), 'title' => 'นำเข้าวิธีใช้ยา', 'class' => 'showModalButton btn btn-danger']);?>
+                        <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> wsc_cinicmember', ['value' => Url::to(['default/wsc-clinicmember']), 'title' => 'ปรับ wsc_cinicmember', 'class' => 'showModalButton btn btn-success']);?>
+                        <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> ปรับรายการยา', ['value' => Url::to(['default/drugnew']), 'title' => 'ปรับรายการยา', 'class' => 'showModalButton btn btn-danger']);?>
+                      <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> ปรับรายการ Lab', ['value' => Url::to(['default/wsc-labitems']), 'title' => 'ปรับข้อมูล Lab', 'class' => 'showModalButton btn btn-info']);?>
                         
                     </div>
                     </div>

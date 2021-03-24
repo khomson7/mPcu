@@ -520,7 +520,10 @@ WHERE `name` = 'pp_special_id'";
         $url = Yii::$app->params['webservice'];
         $url2 = Yii::$app->params['pcuservice'];
 
-        $user_id = Yii::$app->params['uid'];
+     
+
+       // $user_id = Yii::$app->params['uid'];
+       $user_id = \Yii::$app->user->identity->id;
 
         $sql = "select token_ from wsc_check_token where id = '$user_id'";
         $data = Yii::$app->db2->createCommand($sql)->queryAll();
@@ -554,7 +557,10 @@ WHERE `name` = 'pp_special_id'";
 
         $response = curl_exec($curl);
         curl_close($curl);
+
         $data = json_decode($response, true);
+        
+      
         
         foreach ($data['data'] as $key => $item) {
 
@@ -568,6 +574,7 @@ WHERE `name` = 'pp_special_id'";
             $this->exec_hosxp_pcu($sql);
         }
 
+  
 
         $curl = curl_init();
         curl_setopt_array($curl, array(
