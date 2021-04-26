@@ -157,7 +157,7 @@ $query = MProvisVcctype::find()
 ->where(['NOT IN', 'code', $model])
 ->count();*/
 
-echo \yii\helpers\Html::a('2.1) [PROVIS_VCCTYPE] ตารางหลักวัคซีน', ['/pcu/m-provis-vcctype/index']);
+//echo \yii\helpers\Html::a('2.1) [PROVIS_VCCTYPE] ตารางหลักวัคซีน', ['/pcu/m-provis-vcctype/index']);
 ?>
                         </p>
 
@@ -171,7 +171,7 @@ $query = MPersonVaccine::find()
 ->where(['NOT IN', 'vaccine_code', $model])
 ->count();*/
 
-echo \yii\helpers\Html::a('2.2) [PERSON_VACCINE] ข้อมูลวัคซีนบุคคล(one stop service)', ['/pcu/m-person-vaccine/index']);
+//echo \yii\helpers\Html::a('2.2) [PERSON_VACCINE] ข้อมูลวัคซีนบุคคล(one stop service)', ['/pcu/m-person-vaccine/index']);
 ?>
                         </p>
 
@@ -185,7 +185,7 @@ $query = \app\modules\pcu\models\MWbcVaccine::find()
 ->where(['NOT IN', 'wbc_vaccine_code', $model])
 ->count();*/
 
-echo \yii\helpers\Html::a('2.3) [WBC_VACCINE] ข้อมูลวัคซีนเด็ก0-1ปี(งานบัญชี3)', ['/pcu/m-wbc-vaccine/index']);
+//echo \yii\helpers\Html::a('2.3) [WBC_VACCINE] ข้อมูลวัคซีนเด็ก0-1ปี(งานบัญชี3)', ['/pcu/m-wbc-vaccine/index']);
 ?>
                         </p>
 
@@ -199,7 +199,7 @@ $query = \app\modules\pcu\models\MEpiVaccine::find()
 ->where(['NOT IN', 'vaccine_code', $model])
 ->count();*/
 
-echo \yii\helpers\Html::a('2.4) [EPI_VACCINE] ข้อมูลวัคซีนเด็ก 1-5ปี(งานบัญชี4)', ['/pcu/m-epi-vaccine/index']);
+//echo \yii\helpers\Html::a('2.4) [EPI_VACCINE] ข้อมูลวัคซีนเด็ก 1-5ปี(งานบัญชี4)', ['/pcu/m-epi-vaccine/index']);
 ?>
                         </p>
 
@@ -222,7 +222,7 @@ $model = app\modules\pcu\models\Dttm::find()->select('code')
 $query = MDttm::find()
 ->where(['NOT IN', 'code', $model])
 ->count(); */
-echo \yii\helpers\Html::a('4.1) [DTTM] รายการทันตกรรม รอนำเข้า', ['/pcu/m-dttm/index']);
+//echo \yii\helpers\Html::a('4.1) [DTTM] รายการทันตกรรม รอนำเข้า', ['/pcu/m-dttm/index']);
 ?>
                         </p>
 
@@ -245,7 +245,7 @@ $query = app\modules\pcu\models\MIcd101::find()
 ->where(['NOT IN', 'code', $model])
 ->andWhere(['like', 'code', $searchVal])
 ->count();*/
-echo \yii\helpers\Html::a('6.1) [ICD10_HEALTH_MED] รหัสวินิจฉัยแพทย์แผนไทย', ['/pcu/m-icd101/index']);
+//echo \yii\helpers\Html::a('6.1) [ICD10_HEALTH_MED] รหัสวินิจฉัยแพทย์แผนไทย', ['/pcu/m-icd101/index']);
 ?>
                         </p>
 

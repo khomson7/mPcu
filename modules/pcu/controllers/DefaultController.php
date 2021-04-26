@@ -26,12 +26,16 @@ class DefaultController extends AppController
 
     public function actionIndex()
     {
+        
                 $ver = file_get_contents(Yii::getAlias('../version/version.txt'));
       //  $ver = explode(',', $ver);
        // echo $ver;
+                 $opd = Opdconfig::find()
+            ->one();
+        $opdconfig = $opd->hospitalcode;
 
         $sql = "
-               update chospital_amp set version = '$ver' where hoscode = '03149'
+               update chospital_amp set version = '$ver' where hoscode = $opdconfig
                 ";
         $this->exec_master($sql);
 
