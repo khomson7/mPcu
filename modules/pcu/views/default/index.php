@@ -111,32 +111,9 @@ echo \yii\helpers\Html::a('3.2) [LAB_ITEMS] ปรับรายการ Provi
                 <div class="panel panel-danger">
                     <div class="panel-heading"><h4>5. เกี่ยวกับข้อมูล SPECIAL PP</h4></div>
                     <div class="panel-body">
-                        <p>
-                            <?php
-/*
-$model = app\modules\pcu\models\PpSpecialCode::find()->select('code')
-->all();
-
-$query = MPpSpecialCode::find()
-->where(['NOT IN', 'code', $model])
-->count();*/
-echo \yii\helpers\Html::a('5.1) [PP SPECIAL CODE] รายการ PP SPECIAL CODE', ['/pcu/m-pp-special-code/index']);
-?>
-                        </p>
-
-                        <p>
-                            <?php
-/*
-$model = app\modules\pcu\models\PpSpecialType::find()->select('pp_special_type_id')
-->all();
-
-$query = app\modules\pcu\models\MPpSpecialType::find()
-->where(['NOT IN', 'pp_special_type_id', $model])
-->count();*/
-echo \yii\helpers\Html::a('5.2) [PP SPECIAL TYPE] รายการ PP SPECIAL TYPE', ['/pcu/m-pp-special-type/index']);
-?>
-                        </p>
-
+                       
+                     <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> นำเข้ารายการ Specialpp', ['value' => Url::to(['default/ppspecial']), 'title' => 'นำเข้าวิธีใช้ยา', 'class' => 'showModalButton btn btn-danger']);?>
+                        
 
                     </div>
                 </div>

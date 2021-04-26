@@ -272,6 +272,56 @@ CREATE TABLE IF NOT EXISTS `wsc_user` (
 
         return $this->redirect(['/pcu/default/index']);
     }
+    
+    
+    public function actionPpspecial()
+    {
+
+      
+        $sql = file_get_contents(__DIR__ . '/sql/wsc_special_type.sql');
+        $command = Yii::$app->db2->createCommand($sql);
+        $command->execute();
+
+        // Make sure, we fetch all errors
+        while ($command->pdoStatement->nextRowSet()) {}
+        
+        
+          $sql2 = file_get_contents(__DIR__ . '/sql/wsc_special_type2.sql');
+        $command = Yii::$app->db2->createCommand($sql2);
+        $command->execute();
+
+        // Make sure, we fetch all errors
+        while ($command->pdoStatement->nextRowSet()) {}
+        
+        
+        $sql = "INSERT INTO pp_special_type
+(select (@cnt := @cnt + 1) as pp_special_type_id,pp_special_type_name,null as hos_guid,pp_special_code 
+from wsc_special_type 
+CROSS JOIN (SELECT @cnt := (select MAX(pp_special_type_id) FROM pp_special_type)) AS dummy
+WHERE pp_special_code not in(select pp_special_code FROM pp_special_type));
+
+UPDATE pp_special_type p
+INNER JOIN
+(select pp_special_type_id,pp_special_type_name as pp_special_type_name2,CAST( pp_special_type_name AS UNSIGNED )as cc  
+from pp_special_type where pp_special_code  AND pp_special_type_name not LIKE'%<<ยกเลิก>>%' ORDER BY pp_special_type_id)t
+on t.pp_special_type_id = p.pp_special_type_id
+SET p.pp_special_type_name = concat(p.pp_special_code,' ',t.pp_special_type_name2)
+WHERE t.cc = 0 ;
+
+
+UPDATE pp_special_type 
+SET pp_special_type_name = concat('<<ยกเลิก>> ' ,pp_special_code)
+WHERE pp_special_code = '1B034';
+
+INSERT INTO pp_special_code
+select pp_special_code,pp_special_type_name,NULL,NULL from pp_special_type WHERE pp_special_code not in(select `code` FROM pp_special_code);
+                ";
+        $this->exec_hosxp_pcu($sql);
+        
+        Yii::$app->getSession()->setFlash('success', 'ดำเนินการเรียบร้อยแล้ว!! ');
+
+        return $this->redirect(['/pcu/default/index']);
+    }
 
 
     public function actionDrugnew()
