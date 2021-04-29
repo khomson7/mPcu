@@ -10,3 +10,5 @@ H:\xampp\htdocs\mPcu\task_event\login.bat
 H:\xampp\htdocs\mPcu\task_event\opitemrace.bat
 H:\xampp\htdocs\mPcu\task_event\drugallergy.bat
 H:\xampp\htdocs\mPcu\task_event\oapp.bat
+
+cd D:/xampp/htdocs/mPcu && git pull
