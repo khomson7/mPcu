@@ -4,7 +4,7 @@ return [
     'class' => 'mdm\admin\components\AccessControl',
     'allowActions' => [
         'user/registration/resend',
-        'user/registration/register',
+        //'user/registration/register',
         'pcu/mycount/*', //บันทึกแสดงหน้า dashboard
         'pcu/linesend/*',
         'pcu/default/utbl',

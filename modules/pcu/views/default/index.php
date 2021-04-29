@@ -37,9 +37,19 @@ yii\bootstrap\Modal::end();
         <div class="col-md-6">
 
             <div class="row">
+                
+                
 
 
                 <div class="panel panel-danger">
+                    
+                    <div class="panel panel-default">
+                    <div class="panel-heading"><h4>ปรับฐานข้อมูล version ใหม่ </h4>
+                        <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> นำเข้ารายการ Specialpp', ['value' => Url::to(['default/ppspecial']), 'title' => 'นำเข้ารายการ Specialpp', 'class' => 'showModalButton btn btn-danger']);?>
+                        
+                    </div>
+                    </div>
+                    
                     <div class="panel-heading"><h4>1. ปรับปรุงข้อมูล</h4>
 
                     <div class="panel panel-default">
@@ -112,7 +122,7 @@ echo \yii\helpers\Html::a('3.2) [LAB_ITEMS] ปรับรายการ Provi
                     <div class="panel-heading"><h4>5. เกี่ยวกับข้อมูล SPECIAL PP</h4></div>
                     <div class="panel-body">
                        
-                     <?=Html::button('<i class="glyphicon glyphicon-repeat"></i> นำเข้ารายการ Specialpp', ['value' => Url::to(['default/ppspecial']), 'title' => 'นำเข้าวิธีใช้ยา', 'class' => 'showModalButton btn btn-danger']);?>
+                    
                         
 
                     </div>
