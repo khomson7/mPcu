@@ -1,0 +1,62 @@
+INSERT INTO provis_vcctype
+select * from provis_vcctype_master
+WHERE `code` not in(select `code` from provis_vcctype);
+
+
+config_mPcu
+
+[php.ini]
+- max_execution_time=360000
+- post_max_size=64M
+- upload_max_filesize = 64M
+- memory_limit=1024M
+- max_input_time=3600
+
+
+XAMPPv7.2.3-32.zip
+
+xampp7.2.25-64.zip
+
+npp.zip
+
+
+/* HOSXP_PCU*/
+
+
+HOSxP_PCU_Full_Setup_3.56.8.7.zip
+
+HOSxP_PCU_Setup_3.62.3.11.zip
+
+BMSHOSxPXE4.zip
+
+BMSHOSxPStandard43Export_new.zip
+
+HOsXPTOOl_SU_59_12_8.zip
+
+PCU-FORM-Doctor-RxORDER-1.zip
+
+/*edit opdconfig table add 2 feild => hosname varchar 255 hosnamelong varchar 255*/
+hosname => โรงพยาบาลส่งเสริมสุขภาพตำบลทมอ     hosnamelong => โรงพยาบาลส่งเสริมสุขภาพตำบลทมอ ตำบลทมอ  อำเภอปราสาท จังหวัดสุรินทร์
+pcu/doctor-cert.zip
+
+pcu/sticker.zip
+
+pcu/Navicat.rar
+
+pcu/Navicat11.rar
+
+ SET @tables = NULL;
+SELECT GROUP_CONCAT(table_schema, '.`', table_name, '`') INTO @tables FROM
+(select * from
+ information_schema.tables 
+  WHERE table_schema = 'hosxp_export' AND table_name LIKE 'tmp_exp_%'
+  LIMIT 50) TT;
+
+SET @tables = CONCAT('DROP TABLE ', @tables);
+select @tables;
+PREPARE stmt1 FROM @tables;
+EXECUTE stmt1;
+DEALLOCATE PREPARE stmt1;
+
+
+72d06cb904796af7f578e71087140ac0
