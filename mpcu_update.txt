@@ -1,0 +1,93 @@
+/*mpcu_drugitems_importpcu*/
+
+BEGIN
+
+	INSERT INTO drugitems(icode,name,strength,units,unitprice,dosageform,drugaccount,drugcategory,drugnote,hintcode,istatus,lastupdatestdprice,lockprice,lockprint
+,maxlevel,minlevel,maxunitperdose,packqty,reorderqty,therapeutic,therapeuticgroup,use_right,drugusage,high_cost
+,must_paid,alert_level,access_level,sticker_short_name,paidst,antibiotic,displaycolor,empty,unitcost,ipd_price,habit_forming,did
+,price2,price3,ipd_price2,ipd_price3,price_lock,pregnancy,pharmacology_group1,pharmacology_group2,pharmacology_group3,generic_name,show_pregnancy_alert
+,icode_guid,na,invcode,check_user_group,check_user_name,show_notify,show_notify_text,income,print_sticker_pq,charge_service_opd,charge_service_ipd,ename,dose_type
+,habit_forming_type,no_discount,therapeutic_eng,hintcode_eng,limit_drugusage,print_sticker_header,calc_idr_qty,item_in_hospital,no_substock,volume_cc,usage_code
+,frequency_code,time_code,dispense_dose,usage_unit_code,dose_per_units,ipd_default_pay,billcode,billnumber,lockprint_ipd,pregnancy_notify_text,show_breast_feeding_alert
+,breast_feeding_alert_text,show_child_notify,child_notify_text,child_notify_min_age,child_notify_max_age,continuous,substitute_icode,trade_name,use_right_allow
+,medication_machine_id,ipd_medication_machine_id,check_remed_qty,addict,addict_type_id,medication_machine_opd_no,medication_machine_ipd_no,fp_drug,usage_code_ipd,
+dispense_dose_ipd,usage_unit_code_ipd,frequency_code_ipd,time_code_ipd,print_ipd_injection_sticker,provis_medication_unit_code,hos_guid,sks_product_category_id,
+sks_clain_control_type_id,sks_drug_code,sks_dfs_code,sks_dfs_text,sks_reimb_price,hos_guid_ext,check_druginteraction_history,check_druginteraction_history_day,
+nhso_adp_type_id,nhso_adp_code,sks_claim_control_type_id,begin_date,finish_date,name_pr,name_eng,capacity_name,finish_reason,extra_unitcost,drug_control_type_id,
+name_print,active_ingredient_mg,no_order_g6pd,gender_check,no_order_gender,max_qty,prefer_opd_usage_code,capacity_qty,need_order_reason,drugitems_due_type_id,
+drugeval_head_id,light_protect,tpu_code_list,inv_map_update,special_advice_text,precaution_advice_text,contra_advice_text,storage_advice_text,qr_code_url,vat_percent,
+acc_regist,use_paidst,thai_name,fwf_item_id,drugitems_em1_id,drugitems_em2_id,drugitems_em3_id,drugitems_em4_id,tmt_tp_code,tmt_gp_code,limit_pttype,noshow_narcotic,
+medication_machine_flag,sks_price,print_sticker_by_frequency,print_sticker_pq_ipd,sub_income,prefer_ipd_usage_code,default_qty_ipd,max_qty_ipd,drugusage_ipd,
+no_popup_ipd_reason,specprep,med_dose_calc_type_id,send_line_notify,show_qrcode_trade,warn_g6pd,ipd_rx_freq_day)
+
+select icode,name,strength,units,unitprice,dosageform,drugaccount,drugcategory,drugnote,hintcode,istatus,lastupdatestdprice,lockprice,lockprint
+,maxlevel,minlevel,maxunitperdose,packqty,reorderqty,therapeutic,therapeuticgroup,use_right,drugusage,high_cost
+,must_paid,alert_level,access_level,sticker_short_name,paidst,antibiotic,displaycolor,empty,unitcost,ipd_price,habit_forming,did
+,price2,price3,ipd_price2,ipd_price3,price_lock,pregnancy,pharmacology_group1,pharmacology_group2,pharmacology_group3,generic_name,show_pregnancy_alert
+,icode_guid,na,invcode,check_user_group,check_user_name,show_notify,show_notify_text,income,print_sticker_pq,charge_service_opd,charge_service_ipd,ename,dose_type
+,habit_forming_type,no_discount,therapeutic_eng,hintcode_eng,limit_drugusage,print_sticker_header,calc_idr_qty,item_in_hospital,no_substock,volume_cc,usage_code
+,frequency_code,time_code,dispense_dose,usage_unit_code,dose_per_units,ipd_default_pay,billcode,billnumber,lockprint_ipd,pregnancy_notify_text,show_breast_feeding_alert
+,breast_feeding_alert_text,show_child_notify,child_notify_text,child_notify_min_age,child_notify_max_age,continuous,substitute_icode,trade_name,use_right_allow
+,medication_machine_id,ipd_medication_machine_id,check_remed_qty,addict,addict_type_id,medication_machine_opd_no,medication_machine_ipd_no,fp_drug,usage_code_ipd,
+dispense_dose_ipd,usage_unit_code_ipd,frequency_code_ipd,time_code_ipd,print_ipd_injection_sticker,provis_medication_unit_code,hos_guid,sks_product_category_id,
+sks_clain_control_type_id,sks_drug_code,sks_dfs_code,sks_dfs_text,sks_reimb_price,hos_guid_ext,check_druginteraction_history,check_druginteraction_history_day,
+nhso_adp_type_id,nhso_adp_code,sks_claim_control_type_id,begin_date,finish_date,name_pr,name_eng,capacity_name,finish_reason,extra_unitcost,drug_control_type_id,
+name_print,active_ingredient_mg,no_order_g6pd,gender_check,no_order_gender,max_qty,prefer_opd_usage_code,capacity_qty,need_order_reason,drugitems_due_type_id,
+drugeval_head_id,light_protect,tpu_code_list,inv_map_update,special_advice_text,precaution_advice_text,contra_advice_text,storage_advice_text,qr_code_url,vat_percent,
+acc_regist,use_paidst,thai_name,fwf_item_id,drugitems_em1_id,drugitems_em2_id,drugitems_em3_id,drugitems_em4_id,tmt_tp_code,tmt_gp_code,limit_pttype,noshow_narcotic,
+medication_machine_flag,sks_price,print_sticker_by_frequency,print_sticker_pq_ipd,sub_income,prefer_ipd_usage_code,default_qty_ipd,max_qty_ipd,drugusage_ipd,
+no_popup_ipd_reason,specprep,med_dose_calc_type_id,send_line_notify,show_qrcode_trade,warn_g6pd,ipd_rx_freq_day
+ 
+FROM drugitems_10918 WHERE check_status = '1' 
+AND icode not in(select icode FROM drugitems);
+
+
+update drugitems d 
+,drugitems_10918 dm
+SET d.unitcost = dm.unitcost ,d.unitprice = dm.unitprice, d.tpu_code_list = dm.tpu_code_list
+WHERE d.icode = dm.icode AND d.`name` = dm.`name`;
+
+update s_drugitems sd,drugitems d
+set sd.istatus = d.istatus
+WHERE sd.icode = d.icode ;
+
+END
+
+/*end*/
+
+
+/*mpcu_opd_allergy_importpcu*/
+BEGIN
+	
+REPLACE INTO opd_allergy(hn,report_date,agent,symptom,reporter,note
+,allergy_group_id,seriousness_id,allergy_result_id,allergy_relation_id,entry_datetime,update_datetime,force_no_order
+,opd_allergy_alert_type_id,patient_cid,opd_allergy_report_type_id,opd_allergy_source_id)
+
+select pt.hn,a.report_date,a.agent,concat(a.symptom,' ',a.note) as symptom ,a.reporter,a.note
+,if(a.allergy_group_id = '0',null,a.allergy_group_id) as allergy_group_id
+,if(a.seriousness_id = '0',null,a.seriousness_id) as seriousness_id
+,if(a.allergy_result_id = '0',null,a.allergy_result_id) as allergy_result_id
+,if(a.allergy_relation_id = '0',null,a.allergy_relation_id) as allergy_relation_id
+,a.entry_datetime,a.update_datetime,if(a.force_no_order = '',null,a.force_no_order) as force_no_order
+
+,a.opd_allergy_alert_type_id,a.patient_cid,a.opd_allergy_report_type_id
+,if(a.opd_allergy_source_id = '0',null,a.opd_allergy_source_id) as opd_allergy_source_id
+from opd_allergy_10918 a
+INNER JOIN patient pt on pt.cid = a.patient_cid;
+
+INSERT INTO drugstdgeneric(genericname)
+select agent FROM opd_allergy
+WHERE agent NOT IN
+(select genericname from drugstdgeneric)
+GROUP BY agent;
+
+update patient pt
+INNER JOIN
+(select hn,GROUP_CONCAT("'",agent,"'") as drugallergy
+from opd_allergy o
+GROUP BY o.hn)t on t.hn = pt.hn
+SET pt.drugallergy = t.drugallergy ;
+
+END
+
+/*end*/
