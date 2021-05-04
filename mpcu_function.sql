@@ -150,18 +150,19 @@ CREATE TABLE `wsc_chronic_lab_copy` (
 -- Records of wsc_chronic_lab_copy
 -- ----------------------------
 
+SET FOREIGN_KEY_CHECKS=0;
+
 -- ----------------------------
 -- Table structure for wsc_cid_encrypt
 -- ----------------------------
 DROP TABLE IF EXISTS `wsc_cid_encrypt`;
 CREATE TABLE `wsc_cid_encrypt` (
   `cid_encrypt` varchar(50) CHARACTER SET utf8 NOT NULL,
-  `check_edit` varchar(50) CHARACTER SET utf8 NOT NULL,
-  PRIMARY KEY (`cid_encrypt`,`check_edit`),
-  KEY `idx` (`cid_encrypt`,`check_edit`) USING BTREE,
-  KEY `idx0` (`cid_encrypt`),
-  KEY `idx1` (`check_edit`)
+  `check_edit` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
+  PRIMARY KEY (`cid_encrypt`),
+  KEY `idx` (`cid_encrypt`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=tis620;
+
 
 -- ----------------------------
 -- Records of wsc_cid_encrypt

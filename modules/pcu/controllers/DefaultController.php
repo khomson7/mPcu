@@ -304,18 +304,24 @@ from wsc_special_type
 CROSS JOIN (SELECT @cnt := (select MAX(pp_special_type_id) FROM pp_special_type)) AS dummy
 WHERE pp_special_code not in(select pp_special_code FROM pp_special_type));
 
+/*
 UPDATE pp_special_type p
 INNER JOIN
 (select pp_special_type_id,pp_special_type_name as pp_special_type_name2,CAST( pp_special_type_name AS UNSIGNED )as cc  
 from pp_special_type where pp_special_code  AND pp_special_type_name not LIKE'%<<ยกเลิก>>%' ORDER BY pp_special_type_id)t
 on t.pp_special_type_id = p.pp_special_type_id
 SET p.pp_special_type_name = concat(p.pp_special_code,' ',t.pp_special_type_name2)
-WHERE t.cc = 0 ;
+WHERE t.cc = 0 ;*/
 
+UPDATE pp_special_type p,wsc_special_type ws
+set p.pp_special_type_name = ws.pp_special_type_name
+where p.pp_special_code = ws.pp_special_code;
 
+/*
 UPDATE pp_special_type 
 SET pp_special_type_name = concat('<<ยกเลิก>> ' ,pp_special_code)
 WHERE pp_special_code = '1B034';
+*/
 
 INSERT INTO pp_special_code
 select pp_special_code,pp_special_type_name,NULL,NULL from pp_special_type WHERE pp_special_code not in(select `code` FROM pp_special_code);
